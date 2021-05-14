@@ -11,6 +11,10 @@ public class UserController {
 
         return "login.html";
     }
+    @GetMapping("/signup")
+    public String signup(){
 
+        return "signup.html";
+    }
 
 }

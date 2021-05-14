@@ -1,10 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <link rel="stylesheet" th:href="@{/css/style.css}" id="theme-stylesheet">
-    <meta charset="UTF-8">
-    <title>SteurungsHonigrührmaschine</title>
-</head>
+<head th:replace ="template :: head">
+
 <body>
 <div class="page login-page">
     <div class="container d-flex align-items-center">
@@ -17,12 +14,41 @@
                             <div class="logo">
                                 <h1>Login Page</h1>
                             </div>
+                            <p> </p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Form Panel    -->
+                <div class="col-lg-6 bg-white">
+                    <div class="form d-flex align-items-center">
+                        <div class="content">
+                            <form method="post" class="form-validate" th:action="@{/login}" >
+
+                                <div class="form-group" >
+                                    <input id="login-username" type="text" name="username" required data-msg="Please enter your username" class="input-material">
+                                    <label for="login-username" class="label-material">Username</label>
+                                </div>
+                                <div class="form-group">
+                                    <input id="login-password" type="password" name="password" required data-msg="Please enter your password" class="input-material">
+                                    <label for="login-password" class="label-material">Password</label>
+                                </div>
+                                <button id="login" type="submit" name="loginSubmit" class="btn btn-primary">Login</button>
+
+                            </form>
+
+                            <br><small>Do not have an account? </small><a th:href="@{/signup}" style="text-decoration: none;" class="signup">Signup</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="copyrights text-center">
+        <p>Steuerung einer Honigrührmaschine <a class="external"></a>
+        </p>
+    </div>
 </div>
+<!-- JavaScript files-->
+<div th:replace ="template :: script"></div>
 </body>
 </html>

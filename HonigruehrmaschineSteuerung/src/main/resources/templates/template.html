@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="head">
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="robots" content="all,follow">
+
+
+    <link rel="stylesheet"  th:href="@{/css/bootstrap.min.css}">
+
+    <!-- theme stylesheet-->
+    <link rel="stylesheet" th:href="@{/css/style.css}" id="theme-stylesheet">
+
+    <!--     Favicon -->
+    <link rel="shortcut icon" th:href="@{/img/favicon.ico}">
+        <title >Honigrührmaschine</title>
+
+    </head>
+    <body>
+<footer class="main-footer" th:fragment="footer">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <p>ANASS &copy; 2021</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<div th:fragment="script">
+    <script  th:src="@{/vendor/jquery/jquery.min.js}"></script>
+    <script  th:src="@{/vendor/jquery-validation/jquery.validate.min.js}" ></script>
+    <!-- Main File-->
+    <script th:src="@{/js/front.js}" src="/js/front.js"></script>
+</div>
+
+</body>
+</html>
