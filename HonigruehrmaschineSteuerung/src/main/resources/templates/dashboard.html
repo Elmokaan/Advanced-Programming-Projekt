@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+
+        <meta charset="utf-8">
+        <titel></titel>
+        <link rel="stylesheet"  th:href="@{/css/style1.css}">
+
+        <!--For Chart--> 
+        <div class="page">
+            <h1>Dashboard-Honigrührlaufmaschine</h1>
+        </div>
+    </head> 
+    
+    
+
+    <body>
+
+      
+      
+
+      <section class="QSetting">
+        <nav class="S">
+  
+          <button class="StartButtonSetting IstartSettig" ; type="submit">START</button>
+      
+          <button class="StopButtonSetting IStopSetting"; type="reset">STOP</button>
+            
+          <p class="P-RlzSetting">Rührlaufzeit</p>
+  
+        </nav>
+      </section> 
+
+      <section class="QSetting2">
+        <article>
+          <form>
+            <input type="date" >
+            <input type="time">
+            <br><br>
+            <input type="date" class="DTS">
+            <input type="time" class="DTS">
+            <br><br>
+            <input type="time" class="TS"><br><br>
+          </form>
+
+        </article>
+        
+      </section>
+  
+      <section class="QSetting1">
+        <nav class="S1">
+           
+          <p class="P-RlzSetting1">Zeiteinstellen</p>
+
+          <p class="P-RlzSetting2">Rührlaufzeit</p>
+        </nav>   
+      </section>
+
+      <section class="QSetting2" >
+        <article>
+          <form >
+            <label  class="SS">START:</label>
+            <input type="time" class="SS">
+            <br><br>
+            <label  class="ES" >END:</label>
+            <input type="time" class="DTS1">
+            <br><br>
+            <input type="time" class="TS1"><br><br>
+          </form>
+
+        </article>
+        
+      </section>
+
+      <div class="navigation">
+
+        <a class="button" th:href="@{/logout}">
+          <img src="https://imkereibedarfshop.de/images/stories/virtuemart/product/pastovadlo-bezorevu-50l.jpg">
+        
+        <div class="logout">LOGOUT</div>
+      
+        </a>
+        
+      </div>
+        
+    
+      
+      
+    </body>   
+    
+       
+</html>

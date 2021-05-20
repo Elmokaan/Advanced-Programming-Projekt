@@ -1,0 +1,220 @@
+
+
+body{
+    
+    background-color: #99995e !important;
+}
+
+
+
+.page {
+    background-color: #221f1f;
+    color: floralwhite;
+    height: inherit;
+    width: 641px;
+    position: relative;
+    right: -30em;
+    border-width: 6px;
+    border-style: solid;
+    border-color: #683B3B;
+}
+  
+
+.IstartSettig{
+
+    background-color: #25794a;
+    height: 40px;
+    width: 90px;
+    color: black;
+    font-size: 5mm;
+}
+
+.StartButtonSetting{
+    
+    position: relative;
+    left: 55px;
+
+}
+
+.IStopSetting{
+
+    background-color: #d7533b;
+    height: 40px;
+    width: 90px;
+    color: black;
+    font-size: 5mm;
+}
+
+.StopButtonSetting{
+    position: relative;
+    left: -40px;
+    top: 75px;
+
+}
+
+
+
+.P-RlzSetting{
+
+    color: blanchedalmond;
+    font-size: 6mm;
+    position: relative;
+    left: 40px;
+    top: 94px;
+
+
+}
+
+.QSetting{
+    max-width: 200px;
+    background-color: #626245;
+    position: relative;
+    left: 120px;
+    top: 55px;
+}
+
+.S{
+    position: relative;
+    left: -4px;
+    top: -140px;
+    padding-top: 200px;
+}
+
+
+.P-RlzSetting1{
+
+    color: blanchedalmond;
+    font-size: 6mm;
+    position: relative;
+    left: 32px;
+    top: 91px;
+}
+
+.QSetting1{
+    max-width: 200px;
+    background-color: #334646;
+    position: relative;
+    left: 119px;
+    top: -40px;
+}
+
+.QSetting2{
+    max-width: 262px;
+    position: relative;
+    left: 390px;
+    top: -184px;
+    padding-top: 0px;
+}
+
+.S1{
+    position: relative;
+    left: -4px;
+    top: -140px;
+    padding-top: 50px;
+}
+
+.DTS{
+    position: relative;
+    left: -4px;
+    top: 37px;
+
+}
+
+.TS{
+    position: relative;
+    left: 72px;
+    top: 68px;
+}
+
+.DTS1{
+    position: relative;
+    left: 18px;
+    top: -22px;
+
+}
+.ES{
+
+    position: relative;
+    left: 16px;
+    top: -20px;
+}
+.SS{
+
+    position: relative;
+    left: 3px;
+    top: -16px;
+}
+
+.TS1{
+    position: relative;
+    left: 66px;
+    top: -8px;
+}
+
+
+
+.P-RlzSetting2{
+
+    color: blanchedalmond;
+    font-size: 6mm;
+    position: relative;
+    left: 40px;
+    top: 115px;
+}
+
+
+
+@import url(https://fonts.googleapis.com/css?family=Oswald:400);
+
+.navigation {
+  width: 100%;
+  background-color: black;
+}
+
+img {
+  width: 25px;
+  border-radius: 50px;
+  float: left;
+}
+
+.logout {
+  font-size: .8em;
+  font-family: 'Oswald', sans-serif;
+	position: relative;
+  right: -18px;
+  bottom: -4px;
+  overflow: hidden;
+  letter-spacing: 3px;
+  opacity: 0;
+  transition: opacity .45s;
+  -webkit-transition: opacity .35s;
+  
+}
+
+.button {
+	text-decoration: none;
+    float: right;
+    padding: 20px;
+    margin: 17px;
+    color: white;
+    width: 25px;
+    background-color: black;
+    transition: width .35s;
+    -webkit-transition: width .35s;
+    overflow: hidden;
+    position: relative;
+    left: 24px;
+    top: -829px;
+}
+
+a:hover {
+  width: 100px;
+}
+
+a:hover .logout{
+  opacity: .9;
+}
+
+a {
+  text-decoration: none;
+}
