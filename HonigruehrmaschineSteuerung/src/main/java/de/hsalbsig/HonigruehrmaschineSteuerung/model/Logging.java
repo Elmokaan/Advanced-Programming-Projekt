@@ -11,18 +11,16 @@ public class Logging {
 
     @Id
     @GeneratedValue (strategy = GenerationType.AUTO)
-
     private long id;
-    private LocalDateTime startAt;
-    private LocalDateTime endAt;
+    private String executedAt;
+    private String command;
 
     public Logging() {
     }
 
-    public Logging(long id, LocalDateTime startAt, LocalDateTime endAt) {
-        this.id = id;
-        this.startAt = startAt;
-        this.endAt = endAt;
+    public Logging(String executedAt, String command) {
+        this.executedAt = executedAt;
+        this.command = command;
     }
 
     public long getId() {
@@ -33,19 +31,19 @@ public class Logging {
         this.id = id;
     }
 
-    public LocalDateTime getStartAt() {
-        return startAt;
+    public String getExecutedAt() {
+        return executedAt;
     }
 
-    public void setStartAt(LocalDateTime startAt) {
-        this.startAt = startAt;
+    public void setExecutedAt(String executedAt) {
+        this.executedAt = executedAt;
     }
 
-    public LocalDateTime getEndAt() {
-        return endAt;
+    public String getCommand() {
+        return command;
     }
 
-    public void setEndAt(LocalDateTime endAt) {
-        this.endAt = endAt;
+    public void setCommand(String command) {
+        this.command = command;
     }
 }

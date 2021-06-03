@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace ="template :: head"></head>
+
+<body>
+
+<table class="table">
+    <thead class="thead-dark">
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">executed at</th>
+        <th scope="col">command</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="log : ${logs}">
+        <th th:text="${log.id}" scope="row"></th>
+        <td th:text="${log.executedAt}"></td>
+        <td th:text="${log.command}"></td>
+    </tr>
+    </tbody>
+</table>
+
+
+</body>
+</html>

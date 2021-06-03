@@ -11,21 +11,30 @@
         <div class="page">
             <h1>Dashboard-Honigrührlaufmaschine</h1>
         </div>
-    </head> 
-    
-    
 
-    <body>
+        <script th:if="${shouldReload}" th:inline="javascript">
+         /*<![CDATA[*/
+            function AutoRefresh() {
+               setTimeout("location.reload(true);", /*[[${timeToReload}]]*/);
+            }
+         /*]]>*/
+      </script>
+    </head>
+
+<!--    onload="JavaScript:setTimeout('location.reload(true)', 5000);"-->
+<!--    th:attr="onload=/&quot;JavaScript:setTimeout('location.reload(true)', 5000);/&quot;"-->
+    <body  onload="JavaScript:AutoRefresh();" >
 
       
       
 
       <section class="QSetting">
         <nav class="S">
-  
-          <button class="StartButtonSetting IstartSettig" ; type="submit">START</button>
-      
-          <button class="StopButtonSetting IStopSetting"; type="reset">STOP</button>
+
+          <a th:class="${isInProgress?'StartButtonSetting IstartSettig disableIt':'StartButtonSetting IstartSettig'}"
+                    th:href="@{/start}">START</a>
+
+          <a th:class="${!isInProgress?'StopButtonSetting IStopSetting disableIt':'StopButtonSetting IStopSetting'}"  th:href="@{/stop}">STOP</a>
             
           <p class="P-RlzSetting">Rührlaufzeit</p>
   
@@ -34,59 +43,60 @@
 
       <section class="QSetting2">
         <article>
-          <form>
-            <input type="date" >
-            <input type="time">
+            <input th:value="${start}" readonly
+            placeholder="Started at"
+            >
             <br><br>
-            <input type="date" class="DTS">
-            <input type="time" class="DTS">
+            <input th:value="${stop}" readonly
+                     placeholder="Stopped at">
             <br><br>
-            <input type="time" class="TS"><br><br>
-          </form>
-
+            <input placeholder="mixing time" th:value="${mixingTime}" readonly><br><br>
         </article>
-        
       </section>
-  
+
       <section class="QSetting1">
         <nav class="S1">
            
           <p class="P-RlzSetting1">Zeiteinstellen</p>
+<!--          <a th:class="${isInProgress || isTimed?'timedSetting disableIt':'timedSetting'}"-->
+<!--             th:href="@{/autostart}">CONFIRM</a>-->
+          <a th:class="${isInProgress || !isTimed ?'abortTimedSetting disableIt':'abortTimedSetting'}"
+             th:href="@{/abortautostart}">ABORT</a>
 
-          <p class="P-RlzSetting2">Rührlaufzeit</p>
-        </nav>   
+          <!--          <p class="P-RlzSetting2">Rührlaufzeit</p>-->
+        </nav>
       </section>
 
-      <section class="QSetting2" >
-        <article>
-          <form >
-            <label  class="SS">START:</label>
-            <input type="time" class="SS">
+      <section class="QSetting3" >
+          <form method="post" th:action="@{/autostart}" >
+<!--            <label  class="SS">START:</label>-->
+            <input th:value="${timedStart}" name="timedStart"
+             pattern="^([0-2][0-9]|[3][0-1])\.([0][1-9]|[1][0-2])\.([1][0-9][0-9][0-9]|[2][0][0-9][0-9]) ([0-1][0-9]|[2][0-4]):[0-5][0-9]:[0-5][0-9]$"
+             placeholder="dd.MM.yyyy HH:mm:ss" type="datetime-local" class="SS" required></input>
+<!--            <input placeholder="HH:mm:ss" type="text" class="SS" required></input>-->
             <br><br>
-            <label  class="ES" >END:</label>
-            <input type="time" class="DTS1">
-            <br><br>
-            <input type="time" class="TS1"><br><br>
-          </form>
+<!--            <label  class="ES" >END:</label>-->
+            <input th:value="${timedStop}" name="timedStop"
+                   pattern="^([0-2][0-9]|[3][0-1])\.([0][1-9]|[1][0-2])\.([1][0-9][0-9][0-9]|[2][0][0-9][0-9]) ([0-1][0-9]|[2][0-4]):[0-5][0-9]:[0-5][0-9]$"
+                   placeholder="dd.MM.yyyy HH:mm:ss" type="datetime-local" class="SS" required></input>
 
-        </article>
-        
+              <button type="submit" th:disabled="${isInProgress || isTimed?true:false}" th:class="${isInProgress || isTimed?'timedSetting disableIt':'timedSetting'}"
+                 >CONFIRM</button>
+          </form>
       </section>
 
       <div class="navigation">
-
         <a class="button" th:href="@{/logout}">
           <img src="https://imkereibedarfshop.de/images/stories/virtuemart/product/pastovadlo-bezorevu-50l.jpg">
-        
         <div class="logout">LOGOUT</div>
-      
         </a>
         
       </div>
-        
-    
-      
-      
+
+      <a th:href="@{/logs}" class="log">Logs</a>
+
+
+
     </body>   
     
        

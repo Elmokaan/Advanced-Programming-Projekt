@@ -22,7 +22,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                         .mvcMatchers( "/signup").permitAll()
                         .anyRequest().authenticated()
         .and().formLogin().loginPage("/login").permitAll().defaultSuccessUrl("/dashboard")
-                .and().logout().logoutUrl("/logout").and().csrf().disable();
+                .and().logout().logoutUrl("/logout").logoutSuccessUrl("/login").and().csrf().disable();
 
     }
 

@@ -5,8 +5,6 @@ body{
     background-color: #99995e !important;
 }
 
-
-
 .page {
     background-color: #221f1f;
     color: floralwhite;
@@ -19,6 +17,27 @@ body{
     border-color: #683B3B;
 }
   
+.timedSetting{
+    background-color: #25794a;
+    color: black;
+    font-size: 5mm;
+    padding: 10px;
+    border: 2px solid white;
+     position: relative;
+     left: -220px;
+     top: -130px;
+     cursor: pointer;
+}
+.abortTimedSetting{
+    background-color: #d7533b;
+    color: black;
+    font-size: 5mm;
+    padding: 10px;
+    border: 2px solid white;
+     position: relative;
+     left: 55px;
+     top: 150px;
+}
 
 .IstartSettig{
 
@@ -27,6 +46,8 @@ body{
     width: 90px;
     color: black;
     font-size: 5mm;
+    padding: 10px;
+    border: 2px solid white;
 }
 
 .StartButtonSetting{
@@ -43,6 +64,8 @@ body{
     width: 90px;
     color: black;
     font-size: 5mm;
+    padding: 10px 15px 10px 15px;
+    border: 2px solid white;
 }
 
 .StopButtonSetting{
@@ -52,6 +75,21 @@ body{
 
 }
 
+.disableIt{
+  pointer-events: none;
+  cursor: none;
+  background-color: #ccc3;
+  border: none;
+  color: #ccc6;
+
+}
+
+.log {
+    background-color: #0072E0;
+    color: black;
+    font-size: 5mm;
+    padding: 10px 15px 10px 15px;
+}
 
 
 .P-RlzSetting{
@@ -105,12 +143,21 @@ body{
     top: -184px;
     padding-top: 0px;
 }
+.QSetting3{
+    max-width: 262px;
+    position: relative;
+    left: 390px;
+    top: -130px;
+    padding-top: 0px;
+}
+
 
 .S1{
     position: relative;
     left: -4px;
     top: -140px;
     padding-top: 50px;
+    padding-bottom: 50px;
 }
 
 .DTS{
@@ -160,6 +207,7 @@ body{
     position: relative;
     left: 40px;
     top: 115px;
+    padding-top:50px;
 }
 
 
@@ -167,6 +215,7 @@ body{
 @import url(https://fonts.googleapis.com/css?family=Oswald:400);
 
 .navigation {
+  margin-top:60px;
   width: 100%;
   background-color: black;
 }

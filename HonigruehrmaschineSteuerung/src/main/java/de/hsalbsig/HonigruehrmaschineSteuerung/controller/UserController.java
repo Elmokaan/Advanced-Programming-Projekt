@@ -1,15 +1,72 @@
 package de.hsalbsig.HonigruehrmaschineSteuerung.controller;
+import de.hsalbsig.HonigruehrmaschineSteuerung.dao.LoggingRepository;
+import de.hsalbsig.HonigruehrmaschineSteuerung.model.Logging;
 import de.hsalbsig.HonigruehrmaschineSteuerung.service.CustomUserDetailsService;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 @Controller
 public class UserController {
+
+
+    MqttClient mqttClient ;
+    HashMap<String,String> payload = new HashMap<>();
+
+    public MqttClient getMqttClient() throws MqttException {
+        if(mqttClient == null){
+            mqttClient = new MqttClient("tcp://broker.hivemq.com:1883"
+                    , MqttClient.generateClientId()
+                    , new MemoryPersistence());
+        }
+        try {
+            if(!mqttClient.isConnected()){
+            mqttClient.connect();
+            }
+        }catch (Exception e){
+            System.out.println("Connection refused");
+            e.printStackTrace();
+        }
+        return mqttClient;
+    }
+
+    @Autowired
+    LoggingRepository loggingRepository;
+
+    private LocalDateTime startTime;
+    private LocalDateTime stopTime;
+    private String mixingTime;
+    private boolean isInProgress = false;
+    private boolean isTimed = false;
+
+    private LocalDateTime timedStart;
+    private LocalDateTime timedStop;
+
+    Timer timedStartTimer;
+    Timer timedStopTimer;
+    private boolean isTimerStopRunning = false;
+    private boolean isTimerStartRunning = false;
+
+    private long timeToReload;
+    private boolean shouldReload = false;
+
+
+    private Model model;
+
 
     @Autowired
     CustomUserDetailsService customUserDetailsService;
@@ -29,12 +86,6 @@ public class UserController {
     public String toDashboard(){
         return "redirect:/dashboard";
     }
-
-    @GetMapping("/dashboard")
-    public String dashboard(){
-        return "dashboard";
-    }
-
 
 
     @RequestMapping(method = RequestMethod.POST, value="/signup")
@@ -59,5 +110,192 @@ public class UserController {
         return "redirect:/signup?error";
     }
 
+
+    @GetMapping("/logs")
+    public String log(Model model){
+        model.addAttribute("logs",loggingRepository.findAll());
+        return "log.html";
+    }
+
+
+    @GetMapping("/dashboard")
+    public String dashboard(Model model){
+        this.model = model;
+        model.addAttribute("start",String.valueOf(startTime==null?"":startTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))));
+        model.addAttribute("stop",String.valueOf(stopTime==null?"":stopTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))));
+        model.addAttribute("mixingTime",mixingTime);
+        model.addAttribute("isInProgress",isInProgress);
+        model.addAttribute("isTimed",isTimed);
+        model.addAttribute("timedStart",String.valueOf(timedStart==null?"":timedStart.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))));
+        model.addAttribute("timedStop",String.valueOf(timedStop==null?"":timedStop.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))));
+
+        model.addAttribute("timeToReload",timeToReload);
+        model.addAttribute("shouldReload",shouldReload);
+
+        return "dashboard";
+    }
+
+
+    @RequestMapping(value="/start")
+    public String startCommand() throws MqttException {
+
+          if(getMqttClient().isConnected()) {
+            this.stopTime = null;
+            this.mixingTime = "";
+
+            if(!isTimed)
+                this.startTime = LocalDateTime.now();
+            else
+                this.startTime = this.timedStart;
+
+            isInProgress = true;
+
+
+//        getMqttClient().publish(
+//                "honigcontrol",
+//                "{\"Ruehrer\",\"on\"}".getBytes(StandardCharsets.UTF_8),
+//                2,
+//                false
+//        );
+
+            loggingRepository.save(new Logging(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")), "Start"));
+          }else {reset();};
+        return "redirect:/dashboard";
+    }
+    @RequestMapping(value="/stop")
+    public String stopCommand() throws MqttException {
+
+
+        if (isInProgress && getMqttClient().isConnected()) {
+            this.stopTime = LocalDateTime.now();
+            if (isTimed && isTimerStopRunning) {
+                this.timedStopTimer.cancel();
+                this.isTimerStopRunning = false;
+            }
+            this.mixingTime = String.valueOf(Duration.between(startTime, stopTime)).substring(2);
+            isInProgress = false;
+            if (isTimed)
+                isTimed = false;
+            shouldReload = false;
+//
+//        getMqttClient().publish(
+//                "honigcontrol",
+//                "{\"Ruehrer\",\"off\"}".getBytes(StandardCharsets.UTF_8),
+//                2,
+//                false
+//        );
+
+        loggingRepository.save(new Logging(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")), "Stop"));
+    }else {reset();};
+
+        return "redirect:/dashboard";
+    }
+
+    @RequestMapping(value="/autostart")
+    public String autoStart(@RequestParam( name="timedStart", defaultValue= "") String timedStart ,
+                            @RequestParam( name="timedStop", defaultValue= "") String timedStop){
+
+        if(timedStart != null
+           && timedStart.matches("^([0-2][0-9]|[3][0-1])\\.([0][1-9]|[1][0-2])\\.([1][0-9][0-9][0-9]|[2][0][0-9][0-9]) ([0-1][0-9]|[2][0-4]):[0-5][0-9]:[0-5][0-9]$")
+           && timedStop != null
+           && timedStop.matches("^([0-2][0-9]|[3][0-1])\\.([0][1-9]|[1][0-2])\\.([1][0-9][0-9][0-9]|[2][0][0-9][0-9]) ([0-1][0-9]|[2][0-4]):[0-5][0-9]:[0-5][0-9]$")
+        ){
+        this.timedStart = LocalDateTime.parse(timedStart.toString(),DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")) ;
+        this.timedStop = LocalDateTime.parse(timedStop.toString(),DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")) ;
+
+        if(this.timedStart.isAfter(this.timedStop)
+        ){
+           LocalDateTime tempValue = this.timedStart;
+           this.timedStart = this.timedStop;
+           this.timedStop = tempValue;
+       }
+            if(this.timedStart.isAfter(LocalDateTime.now())
+               && this.timedStop.isAfter(LocalDateTime.now())
+            ){
+                this.isTimed = true;
+                timer();
+            }
+        }
+        return "redirect:/dashboard";
+    }
+    @RequestMapping(value="/abortautostart")
+    public String abortAutoStart(){
+
+        if(isTimed){
+        this.startTime = null;
+        this.stopTime = null;
+        this.timedStart = null;
+        this.timedStop = null;
+        isTimed = false;
+        if(isTimerStartRunning)
+            timedStartTimer.cancel();
+            isTimerStartRunning = false;
+            shouldReload = false;
+        }
+        return "redirect:/dashboard";
+    }
+
+
+    public void timer(){
+
+         timedStopTimer = new Timer();
+         timedStartTimer = new Timer();
+
+        this.timeToReload = ChronoUnit.MILLIS.between(LocalDateTime.now(),timedStart);
+        this.timedStartTimer.schedule(getTimedStartTask(),this.timeToReload);
+        this.shouldReload = true;
+    }
+
+    public TimerTask getTimedStopTask() {
+         return new TimerTask() {
+            @Override
+            public void run() {
+                isTimerStopRunning = true;
+                try {
+                    stopCommand();
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+                shouldReload = false;
+            }
+        };
+    }
+
+
+    public TimerTask getTimedStartTask() {
+        return new TimerTask() {
+                @Override
+                public void run() {
+                    isTimerStartRunning = true;
+
+                    timeToReload = ChronoUnit.MILLIS.between(timedStart,timedStop);
+                    timedStopTimer.schedule(getTimedStopTask(),timeToReload);
+
+                    shouldReload = true;
+                    try {
+                        startCommand();
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+    }
+
+
+    public void reset(){
+          startTime = null;
+          stopTime = null;
+          mixingTime= "";
+          isInProgress = false;
+          isTimed = false;
+
+          timedStart= null;
+          timedStop= null;
+
+          isTimerStopRunning = false;
+          isTimerStartRunning = false;
+
+          shouldReload = false;
+    }
 
 }
