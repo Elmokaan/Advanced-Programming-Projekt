@@ -12,25 +12,19 @@
             <h1>Dashboard-Honigrührlaufmaschine</h1>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script th:if="${shouldReload}" th:inline="javascript">
-         /*<![CDATA[*/
-            function AutoRefresh() {
-               setTimeout("location.reload(true);", /*[[${timeToReload}]]*/);
-            }
-         /*]]>*/
-      </script>
         <script th:inline="javascript">
          /*<![CDATA[*/
-
-        function addDataToChart() {
-         addData(/*[[${labels}]]*/, /*[[${data}]]*/);
-        }
+            function AutoRefresh() {
+             if(/*[[${timeToReload}]]*/){
+               setTimeout("location.reload(true);", /*[[${timeToReload}]]*/);
+               }
+           addData(/*[[${labels}]]*/, /*[[${data}]]*/);
+            }
          /*]]>*/
       </script>
     </head>
 
-<!--    onload="JavaScript:setTimeout('location.reload(true)', 5000);"-->
-<!--    th:attr="onload=/&quot;JavaScript:setTimeout('location.reload(true)', 5000);/&quot;"-->
+
     <body  onload="JavaScript:AutoRefresh();" >
 
       
@@ -39,10 +33,10 @@
       <section class="QSetting">
         <nav class="S">
 
-          <a onclick="addDataToChart()" th:class="${isInProgress?'StartButtonSetting IstartSettig disableIt':'StartButtonSetting IstartSettig'}"
+          <a  th:class="${isInProgress?'StartButtonSetting IstartSettig disableIt':'StartButtonSetting IstartSettig'}"
                     th:href="@{/start}">START</a>
 
-          <a th:class="${!isInProgress?'StopButtonSetting IStopSetting disableIt':'StopButtonSetting IStopSetting'}"  th:href="@{/stop}">STOP</a>
+          <a  th:class="${!isInProgress?'StopButtonSetting IStopSetting disableIt':'StopButtonSetting IStopSetting'}"  th:href="@{/stop}">STOP</a>
             
           <p class="P-RlzSetting">Rührlaufzeit</p>
   
@@ -58,7 +52,7 @@
             <input th:value="${stop}" readonly
                      placeholder="Stopped at">
             <br><br>
-            <input onclick="addData1('1','1.1')" placeholder="mixing time" th:value="${mixingTime}" readonly><br><br>
+            <input  placeholder="mixing time" th:value="${mixingTime}" readonly><br><br>
         </article>
       </section>
 
@@ -66,12 +60,11 @@
         <nav class="S1">
            
           <p class="P-RlzSetting1">Zeiteinstellen</p>
-<!--          <a th:class="${isInProgress || isTimed?'timedSetting disableIt':'timedSetting'}"-->
-<!--             th:href="@{/autostart}">CONFIRM</a>-->
+
           <a th:class="${isInProgress || !isTimed ?'abortTimedSetting disableIt':'abortTimedSetting'}"
              th:href="@{/abortautostart}">ABORT</a>
 
-          <!--          <p class="P-RlzSetting2">Rührlaufzeit</p>-->
+
         </nav>
       </section>
 

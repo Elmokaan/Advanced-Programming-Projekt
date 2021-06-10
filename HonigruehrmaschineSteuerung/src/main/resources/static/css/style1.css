@@ -253,7 +253,7 @@ img {
     overflow: hidden;
     position: relative;
     left: 24px;
-    top: -829px;
+    top: -1015px;
 }
 
 a:hover {
@@ -271,6 +271,11 @@ a {
 .myChart{
 background-color: white;
 margin: 15%;
+height: 375.75px;
+width: 700px;
+position: relative;
+left: 465px;
+top: -892px;
 /*
 max-width: 1000px;
 max-height: 600px;

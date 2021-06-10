@@ -29,6 +29,7 @@ public class UserController {
     List<Double> data = new ArrayList<>();
 
 
+
     MqttCallback mqttCallback = new MqttCallback() {
         @Override
         public void connectionLost(Throwable cause) {
@@ -184,12 +185,12 @@ public class UserController {
             isInProgress = true;
 
 
-//        getMqttClient().publish(
-//                "honigcontrol",
-//                "{\"Ruehrer\":\"on\"}".getBytes(StandardCharsets.UTF_8),
-//                2,
-//                false
-//        );
+        getMqttClient().publish(
+                "honigcontrol",
+                "{\"Ruehrer\":\"on\"}".getBytes(StandardCharsets.UTF_8),
+                2,
+                false
+        );
 
             loggingRepository.save(new Logging(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")), "Start"));
         }else {reset();};
@@ -211,12 +212,12 @@ public class UserController {
                 isTimed = false;
             shouldReload = false;
 
-//        getMqttClient().publish(
-//                "honigcontrol",
-//                "{\"Ruehrer\":\"off\"}".getBytes(StandardCharsets.UTF_8),
-//                2,
-//                false
-//        );
+        getMqttClient().publish(
+                "honigcontrol",
+                "{\"Ruehrer\":\"off\"}".getBytes(StandardCharsets.UTF_8),
+                2,
+                false
+        );
 
             loggingRepository.save(new Logging(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")), "Stop"));
         }else {reset();};
