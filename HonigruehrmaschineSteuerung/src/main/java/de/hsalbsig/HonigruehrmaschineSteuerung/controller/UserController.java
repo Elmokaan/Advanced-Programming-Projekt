@@ -1,23 +1,21 @@
 package de.hsalbsig.HonigruehrmaschineSteuerung.controller;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import de.hsalbsig.HonigruehrmaschineSteuerung.dao.LoggingRepository;
 import de.hsalbsig.HonigruehrmaschineSteuerung.model.Logging;
 import de.hsalbsig.HonigruehrmaschineSteuerung.service.CustomUserDetailsService;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 
 @Controller
@@ -25,17 +23,50 @@ public class UserController {
 
 
     MqttClient mqttClient ;
+
+    List<String> labels = new ArrayList<>();
+    List<Double> data = new ArrayList<>();
+
+
+    MqttCallback mqttCallback = new MqttCallback() {
+        @Override
+        public void connectionLost(Throwable cause) {
+        }
+
+        @Override
+        public void messageArrived(String topic, MqttMessage message) throws Exception {
+
+            System.out.println(topic + " - "+ message.getPayload());
+
+            JsonObject messageJson = new JsonParser().parse(message.getPayload().toString()).getAsJsonObject();
+            Double temperaturValue = messageJson.get("Temperatur").getAsDouble();
+
+            labels.add(LocalDateTime.now().toString());
+            data.add(temperaturValue);
+
+        }
+
+        @Override
+        public void deliveryComplete(IMqttDeliveryToken token) {
+        }
+    };
+
     HashMap<String,String> payload = new HashMap<>();
+
 
     public MqttClient getMqttClient() throws MqttException {
         if(mqttClient == null){
             mqttClient = new MqttClient("tcp://broker.hivemq.com:1883"
                     , MqttClient.generateClientId()
                     , new MemoryPersistence());
+
+            mqttClient.setCallback(mqttCallback);
         }
         try {
             if(!mqttClient.isConnected()){
-            mqttClient.connect();
+                mqttClient.connect();
+                // topic subscription
+                mqttClient.subscribe("honigsensors",1);
             }
         }catch (Exception e){
             System.out.println("Connection refused");
@@ -129,6 +160,10 @@ public class UserController {
         model.addAttribute("timedStart",String.valueOf(timedStart==null?"":timedStart.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))));
         model.addAttribute("timedStop",String.valueOf(timedStop==null?"":timedStop.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss"))));
 
+
+        model.addAttribute("labels",labels);
+        model.addAttribute("data",data);
+
         model.addAttribute("timeToReload",timeToReload);
         model.addAttribute("shouldReload",shouldReload);
 
@@ -139,7 +174,7 @@ public class UserController {
     @RequestMapping(value="/start")
     public String startCommand() throws MqttException {
 
-          if(getMqttClient().isConnected()) {
+        if(getMqttClient().isConnected()) {
             this.stopTime = null;
             this.mixingTime = "";
 
@@ -153,13 +188,13 @@ public class UserController {
 
 //        getMqttClient().publish(
 //                "honigcontrol",
-//                "{\"Ruehrer\",\"on\"}".getBytes(StandardCharsets.UTF_8),
+//                "{\"Ruehrer\":\"on\"}".getBytes(StandardCharsets.UTF_8),
 //                2,
 //                false
 //        );
 
             loggingRepository.save(new Logging(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")), "Start"));
-          }else {reset();};
+        }else {reset();};
         return "redirect:/dashboard";
     }
     @RequestMapping(value="/stop")
@@ -177,16 +212,16 @@ public class UserController {
             if (isTimed)
                 isTimed = false;
             shouldReload = false;
-//
+
 //        getMqttClient().publish(
 //                "honigcontrol",
-//                "{\"Ruehrer\",\"off\"}".getBytes(StandardCharsets.UTF_8),
+//                "{\"Ruehrer\":\"off\"}".getBytes(StandardCharsets.UTF_8),
 //                2,
 //                false
 //        );
 
-        loggingRepository.save(new Logging(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")), "Stop"));
-    }else {reset();};
+            loggingRepository.save(new Logging(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")), "Stop"));
+        }else {reset();};
 
         return "redirect:/dashboard";
     }
@@ -196,21 +231,21 @@ public class UserController {
                             @RequestParam( name="timedStop", defaultValue= "") String timedStop){
 
         if(timedStart != null
-           && timedStart.matches("^([0-2][0-9]|[3][0-1])\\.([0][1-9]|[1][0-2])\\.([1][0-9][0-9][0-9]|[2][0][0-9][0-9]) ([0-1][0-9]|[2][0-4]):[0-5][0-9]:[0-5][0-9]$")
-           && timedStop != null
-           && timedStop.matches("^([0-2][0-9]|[3][0-1])\\.([0][1-9]|[1][0-2])\\.([1][0-9][0-9][0-9]|[2][0][0-9][0-9]) ([0-1][0-9]|[2][0-4]):[0-5][0-9]:[0-5][0-9]$")
+                && timedStart.matches("^([0-2][0-9]|[3][0-1])\\.([0][1-9]|[1][0-2])\\.([1][0-9][0-9][0-9]|[2][0][0-9][0-9]) ([0-1][0-9]|[2][0-4]):[0-5][0-9]:[0-5][0-9]$")
+                && timedStop != null
+                && timedStop.matches("^([0-2][0-9]|[3][0-1])\\.([0][1-9]|[1][0-2])\\.([1][0-9][0-9][0-9]|[2][0][0-9][0-9]) ([0-1][0-9]|[2][0-4]):[0-5][0-9]:[0-5][0-9]$")
         ){
-        this.timedStart = LocalDateTime.parse(timedStart.toString(),DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")) ;
-        this.timedStop = LocalDateTime.parse(timedStop.toString(),DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")) ;
+            this.timedStart = LocalDateTime.parse(timedStart.toString(),DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")) ;
+            this.timedStop = LocalDateTime.parse(timedStop.toString(),DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")) ;
 
-        if(this.timedStart.isAfter(this.timedStop)
-        ){
-           LocalDateTime tempValue = this.timedStart;
-           this.timedStart = this.timedStop;
-           this.timedStop = tempValue;
-       }
+            if(this.timedStart.isAfter(this.timedStop)
+            ){
+                LocalDateTime tempValue = this.timedStart;
+                this.timedStart = this.timedStop;
+                this.timedStop = tempValue;
+            }
             if(this.timedStart.isAfter(LocalDateTime.now())
-               && this.timedStop.isAfter(LocalDateTime.now())
+                    && this.timedStop.isAfter(LocalDateTime.now())
             ){
                 this.isTimed = true;
                 timer();
@@ -222,13 +257,13 @@ public class UserController {
     public String abortAutoStart(){
 
         if(isTimed){
-        this.startTime = null;
-        this.stopTime = null;
-        this.timedStart = null;
-        this.timedStop = null;
-        isTimed = false;
-        if(isTimerStartRunning)
-            timedStartTimer.cancel();
+            this.startTime = null;
+            this.stopTime = null;
+            this.timedStart = null;
+            this.timedStop = null;
+            isTimed = false;
+            if(isTimerStartRunning)
+                timedStartTimer.cancel();
             isTimerStartRunning = false;
             shouldReload = false;
         }
@@ -236,10 +271,11 @@ public class UserController {
     }
 
 
+
     public void timer(){
 
-         timedStopTimer = new Timer();
-         timedStartTimer = new Timer();
+        timedStopTimer = new Timer();
+        timedStartTimer = new Timer();
 
         this.timeToReload = ChronoUnit.MILLIS.between(LocalDateTime.now(),timedStart);
         this.timedStartTimer.schedule(getTimedStartTask(),this.timeToReload);
@@ -247,7 +283,7 @@ public class UserController {
     }
 
     public TimerTask getTimedStopTask() {
-         return new TimerTask() {
+        return new TimerTask() {
             @Override
             public void run() {
                 isTimerStopRunning = true;
@@ -264,38 +300,41 @@ public class UserController {
 
     public TimerTask getTimedStartTask() {
         return new TimerTask() {
-                @Override
-                public void run() {
-                    isTimerStartRunning = true;
+            @Override
+            public void run() {
+                isTimerStartRunning = true;
 
-                    timeToReload = ChronoUnit.MILLIS.between(timedStart,timedStop);
-                    timedStopTimer.schedule(getTimedStopTask(),timeToReload);
+                timeToReload = ChronoUnit.MILLIS.between(timedStart,timedStop);
+                timedStopTimer.schedule(getTimedStopTask(),timeToReload);
 
-                    shouldReload = true;
-                    try {
-                        startCommand();
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    }
+                shouldReload = true;
+                try {
+                    startCommand();
+                } catch (MqttException e) {
+                    e.printStackTrace();
                 }
-            };
+            }
+        };
     }
 
 
     public void reset(){
-          startTime = null;
-          stopTime = null;
-          mixingTime= "";
-          isInProgress = false;
-          isTimed = false;
+        startTime = null;
+        stopTime = null;
+        mixingTime= "";
+        isInProgress = false;
+        isTimed = false;
 
-          timedStart= null;
-          timedStop= null;
+        timedStart= null;
+        timedStop= null;
 
-          isTimerStopRunning = false;
-          isTimerStartRunning = false;
+        isTimerStopRunning = false;
+        isTimerStartRunning = false;
 
-          shouldReload = false;
+        shouldReload = false;
     }
+
+
+
 
 }
