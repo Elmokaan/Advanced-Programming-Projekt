@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -50,9 +51,6 @@ public class UserController {
         public void deliveryComplete(IMqttDeliveryToken token) {
         }
     };
-
-    HashMap<String,String> payload = new HashMap<>();
-
 
     public MqttClient getMqttClient() throws MqttException {
         if(mqttClient == null){

@@ -2,7 +2,7 @@
 
 body{
     
-    background-color: #99995e !important;
+    background-color: #DBDBDB !important;
 }
 
 .page {
@@ -266,4 +266,13 @@ a:hover .logout{
 
 a {
   text-decoration: none;
+}
+
+.myChart{
+background-color: white;
+margin: 15%;
+/*
+max-width: 1000px;
+max-height: 600px;
+*/
 }

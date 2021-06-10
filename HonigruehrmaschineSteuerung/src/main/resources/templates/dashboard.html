@@ -11,12 +11,20 @@
         <div class="page">
             <h1>Dashboard-Honigrührlaufmaschine</h1>
         </div>
-
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script th:if="${shouldReload}" th:inline="javascript">
          /*<![CDATA[*/
             function AutoRefresh() {
                setTimeout("location.reload(true);", /*[[${timeToReload}]]*/);
             }
+         /*]]>*/
+      </script>
+        <script th:inline="javascript">
+         /*<![CDATA[*/
+
+        function addDataToChart() {
+         addData(/*[[${labels}]]*/, /*[[${data}]]*/);
+        }
          /*]]>*/
       </script>
     </head>
@@ -31,7 +39,7 @@
       <section class="QSetting">
         <nav class="S">
 
-          <a th:class="${isInProgress?'StartButtonSetting IstartSettig disableIt':'StartButtonSetting IstartSettig'}"
+          <a onclick="addDataToChart()" th:class="${isInProgress?'StartButtonSetting IstartSettig disableIt':'StartButtonSetting IstartSettig'}"
                     th:href="@{/start}">START</a>
 
           <a th:class="${!isInProgress?'StopButtonSetting IStopSetting disableIt':'StopButtonSetting IStopSetting'}"  th:href="@{/stop}">STOP</a>
@@ -50,7 +58,7 @@
             <input th:value="${stop}" readonly
                      placeholder="Stopped at">
             <br><br>
-            <input placeholder="mixing time" th:value="${mixingTime}" readonly><br><br>
+            <input onclick="addData1('1','1.1')" placeholder="mixing time" th:value="${mixingTime}" readonly><br><br>
         </article>
       </section>
 
@@ -85,19 +93,57 @@
           </form>
       </section>
 
-      <div class="navigation">
-        <a class="button" th:href="@{/logout}">
-          <img src="https://imkereibedarfshop.de/images/stories/virtuemart/product/pastovadlo-bezorevu-50l.jpg">
-        <div class="logout">LOGOUT</div>
-        </a>
-        
-      </div>
-
       <a th:href="@{/logs}" class="log">Logs</a>
 
+      <div class="navigation">
+          <a class="button" th:href="@{/logout}">
+              <img src="https://imkereibedarfshop.de/images/stories/virtuemart/product/pastovadlo-bezorevu-50l.jpg">
+              <div class="logout">LOGOUT</div>
+          </a>
+      </div>
+      <div class="myChart">
+          <canvas id="myChart"></canvas>
+          <script>
 
+const labels = [
+];
+const data = {
+  labels: labels,
+  datasets: [{
+    label: 'Temperature',
+    backgroundColor: 'rgb(0, 99, 132)',
+    borderColor: 'rgb(0, 99, 132)',
+    data: [],
+  }]
+};
 
-    </body>   
+  const config = {
+  type: 'line',
+  data,
+  options: {}
+};
+
+  var myChart = new Chart(
+    document.getElementById('myChart'),
+    config
+  );
+
+  function addData(label, data) {
+ for (var i = 0; i < data.length; i++) {
+  console.log(label[i]);
+  console.log(data[i]);
+  myChart.data.labels.push(label[i]);
+    myChart.data.datasets.forEach((dataset) => {
+        dataset.data.push(data[i]);
+    });
+     }
+    myChart.update();
+}
+
+</script>
+      </div>
+
+    </body>
     
        
 </html>
