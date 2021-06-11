@@ -38,13 +38,16 @@ public class UserController {
         @Override
         public void messageArrived(String topic, MqttMessage message) throws Exception {
 
-            System.out.println(topic + " - "+ message.getPayload());
-
-            JsonObject messageJson = new JsonParser().parse(message.getPayload().toString()).getAsJsonObject();
+            System.out.println(topic +" - "+message.toString());
+        try{
+            JsonObject messageJson = new JsonParser().parse(message.toString()).getAsJsonObject();
             Double temperaturValue = messageJson.get("Temperatur").getAsDouble();
 
             labels.add(LocalDateTime.now().toString());
             data.add(temperaturValue);
+
+        }
+            catch(Exception e){}
 
         }
 
@@ -65,7 +68,7 @@ public class UserController {
             if(!mqttClient.isConnected()){
                 mqttClient.connect();
                 // topic subscription
-                mqttClient.subscribe("honigsensors",1);
+                mqttClient.subscribe("tempcontrol",1);
             }
         }catch (Exception e){
             System.out.println("Connection refused");
@@ -185,12 +188,12 @@ public class UserController {
             isInProgress = true;
 
 
-        getMqttClient().publish(
-                "honigcontrol",
-                "{\"Ruehrer\":\"on\"}".getBytes(StandardCharsets.UTF_8),
-                2,
-                false
-        );
+        //getMqttClient().publish(
+        //        "honigcontrol",
+        //        "{\"Ruehrer\":\"on\"}".getBytes(StandardCharsets.UTF_8),
+        //        2,
+        //        false
+       // );
 
             loggingRepository.save(new Logging(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")), "Start"));
         }else {reset();};
@@ -212,12 +215,12 @@ public class UserController {
                 isTimed = false;
             shouldReload = false;
 
-        getMqttClient().publish(
-                "honigcontrol",
-                "{\"Ruehrer\":\"off\"}".getBytes(StandardCharsets.UTF_8),
-                2,
-                false
-        );
+       // getMqttClient().publish(
+         //       "honigcontrol",
+           //     "{\"Ruehrer\":\"off\"}".getBytes(StandardCharsets.UTF_8),
+             //   2,
+               // false
+       // );
 
             loggingRepository.save(new Logging(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")), "Stop"));
         }else {reset();};
